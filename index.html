@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}</style>
+<title>Воронки в Telegram</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&family=Unbounded:wght@500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: одна колонка до 1000px, герой в две колонки (текст + пример диалога бота), воронка сужающимися полосами */
+:root {
+  --bg: #f4f1f8;
+  --surface: #ffffff;
+  --fg: #1e1830;
+  --muted: #615978;
+  --line: #dcd5e8;
+  --accent: #5a38c9;
+  --accent-fg: #ffffff;
+  --signal: #d9482b;
+  --bubble-bot: #ffffff;
+  --bubble-me: #e3dcfa;
+  --f-display: "Unbounded", "Onest", system-ui, sans-serif;
+  --f-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15111f; --surface: #1f1930; --fg: #efeaf8; --muted: #a89fc0; --line: #352c4d;
+    --accent: #a995ff; --accent-fg: #17112b; --signal: #ff8c63;
+    --bubble-bot: #2a2145; --bubble-me: #3d2f78;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15111f; --surface: #1f1930; --fg: #efeaf8; --muted: #a89fc0; --line: #352c4d;
+  --accent: #a995ff; --accent-fg: #17112b; --signal: #ff8c63;
+  --bubble-bot: #2a2145; --bubble-me: #3d2f78;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 72px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 500; line-height: 1.2; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(1.7rem, 5.6vw, 2.9rem); letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.3rem, 3.8vw, 1.8rem); letter-spacing: -0.01em; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+.label { font-family: var(--f-mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* top bar */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.top .tag { font-family: var(--f-mono); font-size: 0.8rem; letter-spacing: 0.06em; color: var(--muted); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--accent); color: var(--accent-fg); text-decoration: none;
+  font-weight: 600; font-size: 1rem; padding: 13px 22px; border-radius: 4px; border: 0; cursor: pointer;
+  font-family: var(--f-body);
+}
+.btn.ghost { background: transparent; color: var(--fg); border: 1.5px solid var(--fg); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1fr; gap: 36px; align-items: center; }
+.hero-text { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.hero-text .lead { color: var(--muted); max-width: 34em; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hl { color: var(--signal); }
+
+/* chat mock */
+.chat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.chat-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.chat-head b { font-size: 0.95rem; }
+.msg { max-width: 86%; padding: 10px 14px; border-radius: 14px; font-size: 0.95rem; line-height: 1.45; }
+.msg.bot { background: var(--bubble-bot); border: 1px solid var(--line); border-bottom-left-radius: 4px; align-self: flex-start; }
+.msg.me { background: var(--bubble-me); border-bottom-right-radius: 4px; align-self: flex-end; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; }
+.btns span { font-size: 0.88rem; font-weight: 500; padding: 7px 13px; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 8px; }
+.btns span.on { background: var(--accent); color: var(--accent-fg); }
+.chat-note { font-size: 0.8rem; color: var(--muted); padding-top: 6px; }
+
+/* sections */
+.sec { display: flex; flex-direction: column; gap: 28px; }
+.sec-head { display: flex; flex-direction: column; gap: 10px; max-width: 40em; }
+.sec-head p { color: var(--muted); }
+
+/* funnel */
+.funnel { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.stage { width: var(--w); min-width: 0; background: var(--surface); border: 1px solid var(--line); padding: 14px 18px; display: flex; flex-direction: column; gap: 2px; text-align: center; }
+.stage:nth-child(1) { --w: 100%; border-top: 3px solid var(--accent); }
+.stage:nth-child(2) { --w: 90%; }
+.stage:nth-child(3) { --w: 80%; }
+.stage:nth-child(4) { --w: 70%; }
+.stage:nth-child(5) { --w: 60%; border-bottom: 3px solid var(--signal); }
+.stage b { font-family: var(--f-display); font-weight: 500; font-size: 0.95rem; }
+.stage span { font-size: 0.88rem; color: var(--muted); }
+
+/* services */
+.cards { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card p { color: var(--muted); font-size: 0.97rem; }
+.card ul { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: 0.95rem; display: flex; flex-direction: column; gap: 4px; }
+
+/* process: true sequence */
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.steps li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.steps .n { font-family: var(--f-mono); color: var(--signal); font-size: 0.95rem; padding-top: 2px; }
+.steps h3 { margin-bottom: 4px; }
+.steps p { color: var(--muted); font-size: 0.97rem; }
+
+/* about + call */
+.two { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.panel { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 24px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; color: var(--muted); }
+.panel p { color: var(--muted); }
+
+/* contact */
+.contact { background: var(--accent); color: var(--accent-fg); border-radius: 8px; padding: 32px 24px; display: flex; flex-direction: column; gap: 18px; }
+.contact h2 { color: var(--accent-fg); }
+.contact p { opacity: 0.92; max-width: 34em; }
+.contact-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.contact .btn { background: var(--accent-fg); color: var(--accent); }
+.contact .handle { font-family: var(--f-mono); font-size: 1rem; padding: 12px 14px; border: 1.5px solid var(--accent-fg); border-radius: 4px; user-select: all; }
+.contact .btn.ghost { background: transparent; color: var(--accent-fg); border-color: var(--accent-fg); }
+footer { color: var(--muted); font-size: 0.85rem; }
+
+@media (min-width: 760px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .two { grid-template-columns: 1fr 1fr; }
+  .contact { padding: 44px; }
+}
+@media (min-width: 960px) {
+  .hero { grid-template-columns: 1.15fr 0.85fr; gap: 56px; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <span class="tag">МАРКЕТИНГ · SMM · TELEGRAM-БОТЫ</span>
+    <a class="btn ghost" href="#contact">Написать</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <span class="label">Воронки продаж под ключ</span>
+      <h1>Соберу воронку, которая ведёт клиента от первого касания <span class="hl">до оплаты</span></h1>
+      <p class="lead">Продумываю путь клиента, делаю Telegram-бота и контент, который приводит людей в воронку. Уже работал с мастерами, преподавателями и тренерами.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#contact">Обсудить проект</a>
+        <a class="btn ghost" href="#funnel">Как это устроено</a>
+      </div>
+    </div>
+
+    <div class="chat" aria-label="Пример диалога с ботом">
+      <div class="chat-head"><b>Бот-консультант</b><span class="label">пример сценария</span></div>
+      <div class="msg bot">Здравствуйте! Подберу формат продвижения. Чем вы занимаетесь?</div>
+      <div class="btns"><span>Услуги</span><span>Магазин</span><span class="on">Эксперт</span></div>
+      <div class="msg me">Эксперт</div>
+      <div class="msg bot">Где сейчас приходят клиенты и как вы с ними общаетесь?</div>
+      <div class="btns"><span>Instagram</span><span class="on">Telegram</span><span>Сарафан</span></div>
+      <div class="msg bot">Понял. Оставьте контакт, пришлю разбор и план воронки.</div>
+      <p class="chat-note">Так выглядит сценарий: вопросы, кнопки, сбор заявки.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="funnel">
+    <div class="sec-head">
+      <span class="label">Воронка</span>
+      <h2>Из чего состоит воронка продаж</h2>
+      <p>Каждый этап отсеивает тех, кому не подходит предложение, и подводит остальных к покупке. Моя задача — чтобы на каждом шаге человеку было понятно, что делать дальше.</p>
+    </div>
+    <div class="funnel">
+      <div class="stage"><b>Внимание</b><span>Посты, Reels, реклама, рекомендации</span></div>
+      <div class="stage"><b>Вход в Telegram</b><span>Канал или бот с понятной причиной подписаться</span></div>
+      <div class="stage"><b>Прогрев</b><span>Полезный контент и ответы на возражения</span></div>
+      <div class="stage"><b>Заявка</b><span>Диалог в боте, квиз, запись на разбор</span></div>
+      <div class="stage"><b>Продажа</b><span>Звонок или переписка, оплата</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="label">Услуги</span>
+      <h2>Что я делаю</h2>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <h3>Воронка продаж</h3>
+        <p>Описываю путь клиента, пишу тексты и сценарии, настраиваю связки между этапами.</p>
+        <ul><li>карта воронки</li><li>тексты прогрева</li><li>сценарии ответов на возражения</li></ul>
+      </article>
+      <article class="card">
+        <h3>Telegram-боты</h3>
+        <p>Бот принимает заявки, отвечает на частые вопросы, собирает контакты и ведёт человека по сценарию.</p>
+        <ul><li>меню и кнопки</li><li>сбор заявок</li><li>рассылки подписчикам</li></ul>
+      </article>
+      <article class="card">
+        <h3>SMM</h3>
+        <p>Контент-план, посты и визуальный стиль, чтобы соцсети приводили людей в воронку, а не просто копили подписчиков.</p>
+        <ul><li>контент-план</li><li>посты и сторис</li><li>оформление профиля</li></ul>
+      </article>
+      <article class="card">
+        <h3>Разбор того, что уже есть</h3>
+        <p>Смотрю текущую воронку или переписки с клиентами и показываю, где люди пропадают и что поправить.</p>
+        <ul><li>анализ переписок</li><li>список правок по приоритету</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head">
+      <span class="label">Порядок работы</span>
+      <h2>Как мы будем работать</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="n">01</span><div><h3>Созвон и бриф</h3><p>Выясняю, что вы продаёте, кому и как это происходит сейчас.</p></div></li>
+      <li><span class="n">02</span><div><h3>Карта воронки</h3><p>Рисую путь клиента и согласовываю с вами до начала работы.</p></div></li>
+      <li><span class="n">03</span><div><h3>Сборка</h3><p>Пишу тексты, делаю бота и контент.</p></div></li>
+      <li><span class="n">04</span><div><h3>Запуск и проверка</h3><p>Запускаем на реальных людях и смотрим, где они останавливаются.</p></div></li>
+      <li><span class="n">05</span><div><h3>Правки</h3><p>Исправляю слабые места по результатам запуска.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="two">
+    <div class="panel">
+      <span class="label">Обо мне</span>
+      <h2>С кем я работал</h2>
+      <p>Уже работал с мастерами, преподавателями и тренерами: людьми, которые продают свои услуги и своё время. Знаю, какие вопросы задают их клиенты и на чём сделки срываются. Маркетинг, SMM и Telegram-боты — моё основное направление.</p>
+    </div>
+    <div class="panel">
+      <span class="label">Что покажу на созвоне</span>
+      <h2>Примеры и договорённости</h2>
+      <ul>
+        <li>переписки с клиентами по моим проектам</li>
+        <li>пример сценария бота</li>
+        <li>как я вижу воронку именно для вашего бизнеса</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <span class="label" style="color:inherit;opacity:.8">Связь</span>
+    <h2>Расскажите, что продаёте</h2>
+    <p>Напишите в Telegram одним сообщением: что за бизнес и откуда сейчас приходят клиенты. Отвечу и предложу время для видеозвонка.</p>
+    <div class="contact-row">
+      <a class="btn" id="tg" href="https://t.me/timtt333" target="_blank" rel="noopener">Написать в Telegram</a>
+      <span class="handle" id="handle">@timtt333</span>
+      <button class="btn ghost" id="copy" type="button">Скопировать ник</button>
+    </div>
+  </section>
+
+  <footer>Воронки в Telegram · маркетинг, SMM, боты</footer>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy');
+  var h = document.getElementById('handle');
+  btn.addEventListener('click', function () {
+    var done = function () { btn.textContent = 'Скопировано'; setTimeout(function () { btn.textContent = 'Скопировать ник'; }, 1800); };
+    var fallback = function () {
+      try { var r = document.createRange(); r.selectNodeContents(h); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+    };
+    try {
+      navigator.clipboard.writeText(h.textContent).then(done, fallback);
+    } catch (e) { fallback(); }
+  });
+})();
+</script>
+
+</html>
