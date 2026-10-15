@@ -80,8 +80,10 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .msg.bot { background: var(--bubble-bot); border: 1px solid var(--line); border-bottom-left-radius: 4px; align-self: flex-start; }
 .msg.me { background: var(--bubble-me); border-bottom-right-radius: 4px; align-self: flex-end; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; }
-.btns span { font-size: 0.88rem; font-weight: 500; padding: 7px 13px; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 8px; }
-.btns span.on { background: var(--accent); color: var(--accent-fg); }
+.log { display: flex; flex-direction: column; gap: 10px; }
+.btns button { font-family: var(--f-body); font-size: 0.92rem; font-weight: 500; padding: 9px 15px; min-height: 40px; background: transparent; border: 1.5px solid var(--accent); color: var(--accent); border-radius: 8px; cursor: pointer; }
+.btns button:hover, .btns button:active { background: var(--accent); color: var(--accent-fg); }
+.btns .btn { min-height: 40px; padding: 9px 15px; font-size: 0.92rem; border-radius: 8px; }
 .chat-note { font-size: 0.8rem; color: var(--muted); padding-top: 6px; }
 
 /* sections */
@@ -129,12 +131,71 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 .contact .btn.ghost { background: transparent; color: var(--accent-fg); border-color: var(--accent-fg); }
 footer { color: var(--muted); font-size: 0.85rem; }
 
+/* examples */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tabs button { font-family: var(--f-body); font-size: 0.95rem; font-weight: 600; padding: 10px 18px; min-height: 44px; background: transparent; color: var(--fg); border: 1.5px solid var(--line); border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease; }
+.tabs button:hover { border-color: var(--accent); }
+.tabs button:active { transform: scale(0.96); }
+.tabs button[aria-selected="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.demo { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
+.demo .flow { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.demo .chat { animation: none; }
+.lead { background: var(--bg); border: 1.5px dashed var(--accent); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.lead .t { font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); padding-bottom: 4px; }
+.lead .row { display: flex; justify-content: space-between; gap: 12px; }
+.lead .row span { color: var(--muted); }
+.lead .row b { font-weight: 600; text-align: right; }
+
+/* motion */
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes blink { 0%, 80%, 100% { opacity: 0.25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@keyframes sweep { from { background-size: 0% 3px; } to { background-size: 100% 3px; } }
+@keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+
+.hero-text > * { animation: rise 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.hero-text > *:nth-child(2) { animation-delay: 0.1s; }
+.hero-text > *:nth-child(3) { animation-delay: 0.2s; }
+.hero-text > *:nth-child(4) { animation-delay: 0.3s; }
+.chat { animation: rise 0.85s 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) backwards, drift 6s 1.2s ease-in-out infinite; }
+.msg { animation: pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.btns button, .btns .btn { animation: pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.btns > :nth-child(2) { animation-delay: 0.06s; }
+.btns > :nth-child(3) { animation-delay: 0.12s; }
+.btns > :nth-child(4) { animation-delay: 0.18s; }
+.hl { background: linear-gradient(var(--signal), var(--signal)) left 100% / 0% 3px no-repeat; animation: sweep 0.9s 0.8s ease-out forwards; }
+
+.typing { display: flex; gap: 5px; padding: 14px 16px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: blink 1s infinite; }
+.typing i:nth-child(2) { animation-delay: 0.15s; }
+.typing i:nth-child(3) { animation-delay: 0.3s; }
+
+.btn, .card, .stage, .panel, .btns button { transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 35%, transparent); }
+.btn:active, .btns button:active { transform: scale(0.96); }
+.card:hover, .panel:hover { transform: translateY(-4px); border-color: var(--accent); }
+.stage:hover { transform: scale(1.025); border-color: var(--accent); }
+
+@supports (animation-timeline: view()) {
+  .stage, .card, .steps li, .panel, .contact {
+    animation: rise linear backwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .hl { background-size: 100% 3px; }
+}
+
 @media (min-width: 760px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
   .two { grid-template-columns: 1fr 1fr; }
   .contact { padding: 44px; }
 }
 @media (min-width: 960px) {
+  .demo { grid-template-columns: 1fr 1fr; gap: 48px; }
   .hero { grid-template-columns: 1.15fr 0.85fr; gap: 56px; }
 }
 </style>
@@ -158,14 +219,10 @@ footer { color: var(--muted); font-size: 0.85rem; }
     </div>
 
     <div class="chat" aria-label="Пример диалога с ботом">
-      <div class="chat-head"><b>Бот-консультант</b><span class="label">пример сценария</span></div>
-      <div class="msg bot">Здравствуйте! Подберу формат продвижения. Чем вы занимаетесь?</div>
-      <div class="btns"><span>Услуги</span><span>Магазин</span><span class="on">Эксперт</span></div>
-      <div class="msg me">Эксперт</div>
-      <div class="msg bot">Где сейчас приходят клиенты и как вы с ними общаетесь?</div>
-      <div class="btns"><span>Instagram</span><span class="on">Telegram</span><span>Сарафан</span></div>
-      <div class="msg bot">Понял. Оставьте контакт, пришлю разбор и план воронки.</div>
-      <p class="chat-note">Так выглядит сценарий: вопросы, кнопки, сбор заявки.</p>
+      <div class="chat-head"><b>Бот-консультант</b><span class="label">пример · жмите кнопки</span></div>
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="btns" id="opts"></div>
+      <p class="chat-note">Это демонстрация: так бот в Telegram задаёт вопросы и подводит человека к заявке.</p>
     </div>
   </section>
 
@@ -181,6 +238,31 @@ footer { color: var(--muted); font-size: 0.85rem; }
       <div class="stage"><b>Прогрев</b><span>Полезный контент и ответы на возражения</span></div>
       <div class="stage"><b>Заявка</b><span>Диалог в боте, квиз, запись на разбор</span></div>
       <div class="stage"><b>Продажа</b><span>Звонок или переписка, оплата</span></div>
+    </div>
+  </section>
+
+  <section class="sec" id="examples">
+    <div class="sec-head">
+      <span class="label">Примеры ботов</span>
+      <h2>Воронка под вашу нишу</h2>
+      <p>Выберите нишу и пройдите диалог так, как это сделал бы клиент. В конце видно, какую заявку получит владелец. Это демонстрации сценариев, не реальные переписки.</p>
+    </div>
+    <div class="tabs" id="tabs" role="group" aria-label="Выбор ниши">
+      <button type="button" data-k="trainer" aria-selected="true">Тренер</button>
+      <button type="button" data-k="vocal" aria-selected="false">Вокал</button>
+      <button type="button" data-k="lang" aria-selected="false">Языковая школа</button>
+    </div>
+    <div class="demo">
+      <div class="chat" aria-label="Пример диалога с ботом по выбранной нише">
+        <div class="chat-head"><b>Бот в Telegram</b><span class="label">демо · жмите кнопки</span></div>
+        <div class="log" id="log2" aria-live="polite"></div>
+        <div class="btns" id="opts2"></div>
+        <p class="chat-note">Реальный бот делается под вашу нишу и ваши вопросы.</p>
+      </div>
+      <div class="flow">
+        <span class="label">Как устроена эта воронка</span>
+        <ol class="steps" id="flowList"></ol>
+      </div>
     </div>
   </section>
 
@@ -271,6 +353,196 @@ footer { color: var(--muted); font-size: 0.85rem; }
       navigator.clipboard.writeText(h.textContent).then(done, fallback);
     } catch (e) { fallback(); }
   });
+})();
+
+(function () {
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function makeDemo(log, opts, sc) {
+    var answers = [];
+    var dead = false;
+    function add(text, who) { log.appendChild(el('div', 'msg ' + who, text)); }
+    function clearOpts() { while (opts.firstChild) opts.removeChild(opts.firstChild); }
+    function typing(done, instant) {
+      if (instant) { done(); return; }
+      var t = el('div', 'msg bot typing');
+      for (var k = 0; k < 3; k++) t.appendChild(document.createElement('i'));
+      log.appendChild(t);
+      setTimeout(function () {
+        if (dead) return;
+        if (t.parentNode) t.parentNode.removeChild(t);
+        done();
+      }, 750);
+    }
+    function showStep(i, instant) {
+      clearOpts();
+      typing(function () {
+        add(sc.steps[i].q, 'bot');
+        sc.steps[i].o.forEach(function (label) {
+          var b = el('button', '', label);
+          b.type = 'button';
+          b.addEventListener('click', function () {
+            if (dead) return;
+            answers[i] = label;
+            add(label, 'me');
+            clearOpts();
+            setTimeout(function () {
+              if (dead) return;
+              if (i + 1 < sc.steps.length) showStep(i + 1); else finish();
+            }, 350);
+          });
+          opts.appendChild(b);
+        });
+      }, instant);
+    }
+    function lead() {
+      var d = el('div', 'lead');
+      d.appendChild(el('div', 't', 'Так заявка придёт вам в Telegram'));
+      sc.fields.forEach(function (f) {
+        var r = el('div', 'row');
+        r.appendChild(el('span', '', f[0]));
+        r.appendChild(el('b', '', answers[f[1]]));
+        d.appendChild(r);
+      });
+      log.appendChild(d);
+    }
+    function finish() {
+      typing(function () {
+        add(sc.done(answers), 'bot');
+        lead();
+        var a = el('a', 'btn', 'Хочу такого бота');
+        a.href = '#contact';
+        var r = el('button', '', 'Пройти заново');
+        r.type = 'button';
+        r.addEventListener('click', restart);
+        opts.appendChild(a);
+        opts.appendChild(r);
+      });
+    }
+    function restart() {
+      answers = [];
+      while (log.firstChild) log.removeChild(log.firstChild);
+      showStep(0, true);
+    }
+    return { start: restart, stop: function () { dead = true; } };
+  }
+
+  var TIME = ['Сегодня вечером', 'Завтра утром', 'В выходные'];
+
+  var S = {
+    hero: {
+      steps: [
+        { q: 'Здравствуйте! Подберу формат продвижения. Кто вы?', o: ['Мастер', 'Преподаватель', 'Тренер', 'Другое'] },
+        { q: 'Откуда сейчас приходят клиенты?', o: ['Instagram', 'Telegram', 'Сарафанное радио', 'Пока ниоткуда'] },
+        { q: 'Что нужнее всего сейчас?', o: ['Больше заявок', 'Автоответы клиентам', 'Контент и оформление'] }
+      ],
+      fields: [['Кто', 0], ['Клиенты', 1], ['Задача', 2]],
+      done: function (a) {
+        return 'Принято. Вы: ' + a[0] + '. Клиенты приходят: ' + a[1] + '. Главная задача: ' + a[2] + '. Первый шаг: разобрать вашу воронку и собрать бота-помощника.';
+      }
+    },
+    trainer: {
+      steps: [
+        { q: 'Привет! Я бот тренера. Подберу формат занятий. Какая у вас цель?', o: ['Похудеть', 'Набрать форму', 'Спина и осанка', 'Пока не знаю'] },
+        { q: 'Где вам удобнее заниматься?', o: ['В зале', 'Дома', 'Онлайн'] },
+        { q: 'Есть опыт тренировок?', o: ['Нет, с нуля', 'Занимался раньше', 'Занимаюсь регулярно'] },
+        { q: 'Предлагаю пробную тренировку: знакомство, разбор цели и план на месяц. Когда удобно?', o: TIME }
+      ],
+      fields: [['Цель', 0], ['Формат', 1], ['Опыт', 2], ['Время', 3]],
+      done: function (a) {
+        return 'Записал на пробную тренировку: ' + a[3].toLowerCase() + '. Тренер напишет вам и подтвердит время.';
+      },
+      flow: [
+        ['Цель', 'Бот спрашивает, чего человек хочет, и сразу показывает, что тренер его услышал.'],
+        ['Формат и опыт', 'Зал, дом или онлайн, и с какого уровня начинать. Тренер получает это до знакомства.'],
+        ['Предложение', 'Вместо общего «записывайтесь» человеку предлагают понятный первый шаг: пробную тренировку.'],
+        ['Выбор времени', 'Время выбирается кнопкой, без долгой переписки.'],
+        ['Заявка тренеру', 'Все ответы приходят одним сообщением в Telegram.']
+      ]
+    },
+    vocal: {
+      steps: [
+        { q: 'Здравствуйте! Я бот вокальной студии. Для чего вы хотите заниматься вокалом?', o: ['Петь для себя', 'Выступать на сцене', 'Поставить голос для работы'] },
+        { q: 'Вы уже занимались вокалом?', o: ['Нет', 'Немного', 'Да, давно'] },
+        { q: 'Что хотите улучшить в первую очередь?', o: ['Чистоту интонации', 'Диапазон', 'Уверенность на публике'] },
+        { q: 'В каком формате вам удобнее?', o: ['Очно', 'Онлайн'] },
+        { q: 'Предлагаю пробный урок: педагог послушает голос и подскажет, с чего начать. Когда удобно?', o: TIME }
+      ],
+      fields: [['Цель', 0], ['Опыт', 1], ['Улучшить', 2], ['Формат', 3], ['Время', 4]],
+      done: function (a) {
+        return 'Записал на пробный урок: ' + a[4].toLowerCase() + '. Педагог напишет вам, чтобы подтвердить время.';
+      },
+      flow: [
+        ['Цель', 'Для себя, для сцены или для работы с голосом. От этого зависит, что говорить дальше.'],
+        ['Опыт и запрос', 'Бот узнаёт, что именно болит: интонация, диапазон или зажатость.'],
+        ['Формат', 'Очно или онлайн, чтобы не терять тех, кто живёт далеко.'],
+        ['Пробный урок', 'Первый шаг маленький и понятный, поэтому решиться на него проще.'],
+        ['Заявка педагогу', 'Педагог видит ответы ещё до первого урока.']
+      ]
+    },
+    lang: {
+      steps: [
+        { q: 'Здравствуйте! Я бот языковой школы. Какой язык хотите учить?', o: ['Английский', 'Немецкий', 'Испанский', 'Другой'] },
+        { q: 'Для чего он вам нужен?', o: ['Для работы', 'Для переезда или поездок', 'Для экзамена', 'Для себя'] },
+        { q: 'Какой у вас сейчас уровень?', o: ['С нуля', 'Базовый', 'Средний', 'Не знаю'] },
+        { q: 'Как удобнее учиться?', o: ['В группе', 'Индивидуально', 'Онлайн'] },
+        { q: 'Предлагаю пробное занятие и короткий тест уровня, чтобы подобрать группу. Когда удобно?', o: ['Сегодня вечером', 'Завтра', 'На этой неделе'] }
+      ],
+      fields: [['Язык', 0], ['Цель', 1], ['Уровень', 2], ['Формат', 3], ['Время', 4]],
+      done: function (a) {
+        return 'Записал на пробное занятие: ' + a[4].toLowerCase() + '. Менеджер школы напишет вам и подберёт группу.';
+      },
+      flow: [
+        ['Язык и цель', 'Работа, переезд или экзамен: от цели зависит программа и то, как с человеком говорить.'],
+        ['Уровень', 'Если человек не знает уровень, бот предлагает короткий тест вместо отказа.'],
+        ['Формат', 'Группа, индивидуально или онлайн. Менеджер заранее знает, что предлагать.'],
+        ['Пробное занятие', 'Бот ведёт к записи на пробное, а не просто присылает прайс.'],
+        ['Заявка менеджеру', 'Язык, цель, уровень и время приходят в одном сообщении.']
+      ]
+    }
+  };
+
+  var heroLog = document.getElementById('log');
+  var heroOpts = document.getElementById('opts');
+  if (heroLog && heroOpts) makeDemo(heroLog, heroOpts, S.hero).start();
+
+  var log2 = document.getElementById('log2');
+  var opts2 = document.getElementById('opts2');
+  var tabs = document.getElementById('tabs');
+  var flow = document.getElementById('flowList');
+  if (!log2 || !opts2 || !tabs || !flow) return;
+  var current = null;
+
+  function select(key) {
+    if (current) current.stop();
+    while (log2.firstChild) log2.removeChild(log2.firstChild);
+    while (opts2.firstChild) opts2.removeChild(opts2.firstChild);
+    Array.prototype.forEach.call(tabs.children, function (b) {
+      b.setAttribute('aria-selected', b.getAttribute('data-k') === key ? 'true' : 'false');
+    });
+    while (flow.firstChild) flow.removeChild(flow.firstChild);
+    S[key].flow.forEach(function (f, i) {
+      var li = el('li');
+      li.appendChild(el('span', 'n', '0' + (i + 1)));
+      var d = el('div');
+      d.appendChild(el('h3', '', f[0]));
+      d.appendChild(el('p', '', f[1]));
+      li.appendChild(d);
+      flow.appendChild(li);
+    });
+    current = makeDemo(log2, opts2, S[key]);
+    current.start();
+  }
+
+  Array.prototype.forEach.call(tabs.children, function (b) {
+    b.addEventListener('click', function () { select(b.getAttribute('data-k')); });
+  });
+  select('trainer');
 })();
 </script>
 
